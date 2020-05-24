@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29920.165
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NAUKA_CMS", "NAUKA_CMS.csproj", "{A717F79C-BDA2-4C2D-9110-87816AEFBAF0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A717F79C-BDA2-4C2D-9110-87816AEFBAF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A717F79C-BDA2-4C2D-9110-87816AEFBAF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A717F79C-BDA2-4C2D-9110-87816AEFBAF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A717F79C-BDA2-4C2D-9110-87816AEFBAF0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {284E445B-39EC-4B44-B4A3-257E9718C946}
+	EndGlobalSection
+EndGlobal
