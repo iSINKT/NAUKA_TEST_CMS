@@ -70,8 +70,9 @@ namespace NAUKA_CMS
                     smtp.Send(message);                                                             // Отправка сообщения
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message.ToString(), ex.Source.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 // Обработка исключения на случай пустого окна ввода E-mail
             }
         }
