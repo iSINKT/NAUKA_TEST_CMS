@@ -5,7 +5,9 @@ using System.Windows.Forms;
 
 namespace NAUKA_CMS
 {
-    public partial class NewPers : Form                                                   //Форма для регистрации нового персонажа.
+
+    //Форма для регистрации нового персонажа.
+    public partial class NewPers : Form                                                  
     {
         SqlConnection sqlConnection;
         public NewPers()
@@ -13,62 +15,68 @@ namespace NAUKA_CMS
             InitializeComponent();
         }
 
+
+        // Событие нажатия кнопки To registrate
         private async void Send_B_Click(object sender, EventArgs e)
         {
-            SqlCommand command = new SqlCommand("INSERT INTO [" + Dep_CB.Text + "] (FirstName, LastName, Patronymic, DateofBirth, Addres, Email, AboutMyself)" +            //Формарование запроса на вставку записи в таблицу
-                                                "VALUES (@FirstName, @LastName, @Patronymic, @DateofBirth, @Addres, @Email, @AboutMyself)", sqlConnection);
-
-            command.Parameters.AddWithValue("FirstName", FName_T.Text);
-            command.Parameters.AddWithValue("LastName", LName_T.Text);
-            command.Parameters.AddWithValue("Patronymic", Patr_T.Text);
-            command.Parameters.AddWithValue("DateofBirth", Date.Value);
-            command.Parameters.AddWithValue("Addres", Addr_T.Text);
-            command.Parameters.AddWithValue("Email", Email_T.Text);
-            command.Parameters.AddWithValue("AboutMyself", AbM_T.Text);
-
             try
             {
-                await command.ExecuteNonQueryAsync();
-            }
-            catch
-            {
-
-            }
-            if (sqlConnection != null && sqlConnection.State != ConnectionState.Closed) { sqlConnection.Close(); }
-            this.DialogResult = DialogResult.OK;
-            this.Close();
-        }                     // Событие нажатия кнопки To registrate
-
-        private async void NewPers_Load(object sender, EventArgs e)
-        {
-            string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
-            sqlConnection = new SqlConnection(strConnect);
-            await sqlConnection.OpenAsync();
-            SqlDataReader sqlReader = null;
-            SqlCommand command = new SqlCommand("SELECT * FROM [TheDep]", sqlConnection);
-            try
-            {
-                sqlReader = await command.ExecuteReaderAsync();
-                while (await sqlReader.ReadAsync())
+                using (SqlCommand command = new SqlCommand("INSERT INTO [" + Dep_CB.Text + "] (FirstName, LastName, Patronymic, DateofBirth, Addres, Email, AboutMyself)" +            //Формарование запроса на вставку записи в таблицу
+                                                    "VALUES (@FirstName, @LastName, @Patronymic, @DateofBirth, @Addres, @Email, @AboutMyself)", sqlConnection))
                 {
-                    Dep_CB.Items.Add(Convert.ToString(sqlReader["The Departament"]));
+
+                    command.Parameters.AddWithValue("FirstName", FName_T.Text);
+                    command.Parameters.AddWithValue("LastName", LName_T.Text);
+                    command.Parameters.AddWithValue("Patronymic", Patr_T.Text);
+                    command.Parameters.AddWithValue("DateofBirth", Date.Value);
+                    command.Parameters.AddWithValue("Addres", Addr_T.Text);
+                    command.Parameters.AddWithValue("Email", Email_T.Text);
+                    command.Parameters.AddWithValue("AboutMyself", AbM_T.Text);
+
+                    await command.ExecuteNonQueryAsync();
+
+
+                    this.DialogResult = DialogResult.OK;
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message.ToString(), ex.Source.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            finally
-            {
-                if (sqlReader != null) sqlReader.Close();
-            }
-            Dep_CB.SelectedItem = "Одиночки";
-        }                     // Установка соединения с загрузкой формы для считывания и предварительного выделения фракции
+            this.Close();
+        }                     
 
-        private void NewPers_FormClosing(object sender, FormClosingEventArgs e)
+
+        // Установка соединения с загрузкой формы для считывания и предварительного выделения фракции
+        private async void NewPers_Load(object sender, EventArgs e)
         {
-            if (sqlConnection != null && sqlConnection.State != ConnectionState.Closed) { sqlConnection.Close(); }
+            try
+            {
+            string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
+                using (sqlConnection = new SqlConnection(strConnect))
+                {
+                    await sqlConnection.OpenAsync();
+                    SqlDataReader sqlReader = null;
+                    using (SqlCommand command = new SqlCommand("SELECT * FROM [TheDep]", sqlConnection))
+                    {
+                        using (sqlReader = await command.ExecuteReaderAsync())
+                        {
+                            while (await sqlReader.ReadAsync())
+                            {
+                                Dep_CB.Items.Add(Convert.ToString(sqlReader["The Departament"]));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message.ToString(), ex.Source.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+           
+            Dep_CB.SelectedItem = "Одиночки";
+        }                    
 
-        }         // Событие закрывания окна, при котором производится проверка и закрытие соединения
+       
     }
 }

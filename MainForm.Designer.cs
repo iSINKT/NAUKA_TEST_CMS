@@ -398,7 +398,6 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MainForm";
             this.Text = "NAUKA_CMS";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.CardOfPerson.ResumeLayout(false);
             this.CardOfPerson.PerformLayout();

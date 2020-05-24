@@ -5,82 +5,100 @@ using System.Windows.Forms;
 
 namespace NAUKA_CMS
 {
-    public partial class MainForm : Form                                                                      // Главная форма системы управления контентом
+
+    // Главная форма системы управления контентом
+    public partial class MainForm : Form                                                                     
     {
-         SqlConnection sqlConnection;
+        SqlConnection sqlConnection;
         public MainForm()
-        {           
-            InitializeComponent();           
+        {
+            InitializeComponent();
         }
 
+
+
+        // Вызов окна регистрации при "File - New Person"
         private void newPersonToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (new NewPers().ShowDialog() == DialogResult.OK)
                 if (TDep_CB.Text != "")
                     Refresh();
 
-        }                          // Вызов окна регистрации при "File - New Person"
+        }                          
 
+
+
+
+        //Закрытие программы через "File - Exit"
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if(sqlConnection != null &&  sqlConnection.State != ConnectionState.Closed) { sqlConnection.Close(); }          //Закрытие соединения с БД
             this.Close();
-        }                               //Закрытие программы через "File - Exit"
+        }                               
 
         private async void MainForm_Load(object sender, EventArgs e)
         {
-            
+
             if (new LogForm().ShowDialog() != DialogResult.OK)                                                  //Проверка на корректную авторизацию
             {
                 this.Close();
             }
             else
             {
-                string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
-                sqlConnection = new SqlConnection(strConnect);
-                await sqlConnection.OpenAsync();                                                                // Указание расположения БД, установка соединения
-                SqlDataReader sqlReader = null;
-                SqlCommand command = new SqlCommand("SELECT * FROM [TheDep]", sqlConnection);                   //  Формирование запроса к БД. "TheDep = The Departament - отдел, 
-                                                                                                                //  но вскоре Отдел начал исполнять роль Фракции.
                 try
                 {
-                    sqlReader = await command.ExecuteReaderAsync();
-                    while (await sqlReader.ReadAsync())
-                    {                                                                                            // Обработка результата запроса - Наполнение КомбоБоксов фракциями из таблицы TheDep
-                        TDep_CB.Items.Add(Convert.ToString(sqlReader["The Departament"]));
-                        Dep_CB.Items.Add(Convert.ToString(sqlReader["The Departament"]));
+                    string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
+                    using (sqlConnection = new SqlConnection(strConnect))
+                    {
+                        await sqlConnection.OpenAsync();                                                                // Указание расположения БД, установка соединения
+                        SqlDataReader sqlReader = null;
+                        using (SqlCommand command = new SqlCommand("SELECT * FROM [TheDep]", sqlConnection))
+                        {                   //  Формирование запроса к БД. "TheDep = The Departament - отдел, 
+                                            //  но вскоре Отдел начал исполнять роль Фракции.
+
+                            using (sqlReader = await command.ExecuteReaderAsync())
+                            {
+                                while (await sqlReader.ReadAsync())
+                                {                                                                                            // Обработка результата запроса - Наполнение КомбоБоксов фракциями из таблицы TheDep
+                                    TDep_CB.Items.Add(Convert.ToString(sqlReader["The Departament"]));
+                                    Dep_CB.Items.Add(Convert.ToString(sqlReader["The Departament"]));
+                                }
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
-                {
+                { 
                     MessageBox.Show(ex.Message.ToString(), ex.Source.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);       //Обработка исключений
                 }
-                finally
-                {
-                    if (sqlReader != null) sqlReader.Close();
-                }
+                
             }
-        }                                             
+        }
 
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (sqlConnection != null && sqlConnection.State != ConnectionState.Closed) { sqlConnection.Close(); }
-        }                           // Событие закрывания окна, при котором производится проверка и закрытие соединения
 
-        private  void TDep_CM_SelectedIndexChanged(object sender, EventArgs e)
+
+
+
+        // Событие при выборе/изменении Итема в Комбобоксе фракции, в следствии чего, 
+        //происходит моментальное обновление списка людей, принадлежащих выбранной фракции
+        private void TDep_CM_SelectedIndexChanged(object sender, EventArgs e)
         {
             Refresh();
-        }                             // Событие при выборе/изменении Итема в Комбобоксе фракции, в следствии чего, 
-                                                                                                              //происходит моментальное обновление списка людей, принадлежащих выбранной фракции
-
+        }                                                                                                     
+                                                                                                              
+        
+            
+            
+        // Нажатие на кнопку Edit, разрешающая редактирование информационной карточки персонажа
         private void Edit_B_Click(object sender, EventArgs e)
         { 
             Panel.Enabled = true;
             Edit_B.Enabled = false;
             Save_Bt.Enabled = true;
-        }                                              // Нажатие на кнопку Edit, разрешающая редактирование информационной карточки персонажа
+        }
 
-        private async void ListOfPerson_SelectedIndexChanged(object sender, EventArgs e)
+
+        // Событие выбора персонажа из списка, показывающее информационную карточку.
+        private async void ListOfPerson_SelectedIndexChanged(object sender, EventArgs e)           
         {
             if (ListOfPerson.SelectedIndex != -1)
             {
@@ -124,8 +142,14 @@ namespace NAUKA_CMS
                     if (sqlReader != null) sqlReader.Close();
                 }
             }
-        }                   // Событие выбора персонажа из списка, показывающее информационную карточку.
+        }
 
+
+
+        // Так как персонажи классифицированы по фракциям, то редактирование карточки было
+        //    решено выполнить в виде "Вставить-Удалить", что решило вопрос с переходом персонажа
+        //    в другую фракци, но повлекло за собой проблему изменения айди в рамках одной фракции при
+        //    редактировании какой-либо другой информации. Это проблема логики, т.к персонаж-то один и тот же.
         private async void Save_Bt_Click(object sender, EventArgs e)
         {
             string Id = "";
@@ -153,11 +177,11 @@ namespace NAUKA_CMS
             Edit_B.Enabled = true;
 
             Refresh();
-        }                                       // Так как персонажи классифицированы по фракциям, то редактирование карточки было
-                                                                                                              //    решено выполнить в виде "Вставить-Удалить", что решило вопрос с переходом персонажа
-                                                                                                              //    в другую фракци, но повлекло за собой проблему изменения айди в рамках одной фракции при
-                                                                                                              //    редактировании какой-либо другой информации. Это проблема логики, т.к персонаж-то один и тот же.
+        }
 
+
+
+        // Событие выхода из учетной записи и вызов окна авторизации
         private void logOutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Hide();
@@ -172,58 +196,68 @@ namespace NAUKA_CMS
                 Dep_CB.SelectedIndex = 0;
                 this.Show();
             }
-        }                             // Событие выхода из учетной записи и вызов окна авторизации
+        }
 
+
+        // Событие кнопки DELETE
         private async void Del_B_Click(object sender, EventArgs e)
         {
             string Id = "";
             for (int i = 0; ListOfPerson.Text[i] != '\t'; i++)
                 Id += ListOfPerson.Text[i];
-            SqlCommand command = new SqlCommand("DELETE FROM [" + TDep_CB.Text + "] WHERE  Id=" + Id, sqlConnection);
-            await command.ExecuteNonQueryAsync();
+            using (SqlCommand command = new SqlCommand("DELETE FROM [" + TDep_CB.Text + "] WHERE  Id=" + Id, sqlConnection))
+            {
+                await command.ExecuteNonQueryAsync();
+            }
             Refresh( );
             
-        }                                         // Событие кнопки DELETE
+        }
 
-        async void Refresh()
+
+        // Из-за частого использования была вынесена функция Обновления списка персонажей
+        async void Refresh() 
         {
-            ListOfPerson.Items.Clear();
-            SqlDataReader sqlReader = null;
-            SqlCommand command = new SqlCommand("SELECT * FROM [" + TDep_CB.Text.ToString() + "]", sqlConnection);
             try
             {
-                sqlReader = await command.ExecuteReaderAsync();
-                while (await sqlReader.ReadAsync())
+                ListOfPerson.Items.Clear();
+                SqlDataReader sqlReader = null;
+                using (SqlCommand command = new SqlCommand("SELECT * FROM [" + TDep_CB.Text.ToString() + "]", sqlConnection))
                 {
-                    ListOfPerson.Items.Add(Convert.ToString(sqlReader["id"]) + '\t' + Convert.ToString(sqlReader["FirstName"]) + ' ' + Convert.ToString(sqlReader["LastName"]) + ' ' + Convert.ToString(sqlReader["Patronymic"]));
+
+                    using (sqlReader = await command.ExecuteReaderAsync())
+                    {
+                        while (await sqlReader.ReadAsync())
+                        {
+                            ListOfPerson.Items.Add(Convert.ToString(sqlReader["id"]) + '\t' + Convert.ToString(sqlReader["FirstName"]) + ' ' + Convert.ToString(sqlReader["LastName"]) + ' ' + Convert.ToString(sqlReader["Patronymic"]));
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message.ToString(), ex.Source.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                if (sqlReader != null) sqlReader.Close();
-            }
+            }            
             CardOfPerson.Visible = false;
-        }                                                                               // Из-за частого использования была вынесена функция Обновления списка персонажей
+        }
 
+
+        // Событие "Option - Admin", позволяющее изменить логин и пароль для входа в 
+        //   учетную запись. Админ-пользователь !один!
         private void adminToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (new SuperUserSettings().ShowDialog() == DialogResult.OK)
-                if(TDep_CB.Text != "")
+                if(!string.IsNullOrEmpty(TDep_CB.Text))
                 Refresh();
-        }                               // Событие "Option - Admin", позволяющее изменить логин и пароль для входа в 
-                                                                                                               //   учетную запись. Админ-пользователь !один!, многопользовательность не реализована 
-                                                                                                               //   по причине спешки.
-                                                                                                                
+        }
 
+
+
+        // Событие нажатие кнопки To Connect, позволяющей связаться с персонажем путем отправки 
+        //   письма на указанную в карточке электронную почту.
         private void Tcon_B_Click(object sender, EventArgs e)
         {
             if (new MessageMail(Email_T.Text).ShowDialog() == DialogResult.OK)
                 Refresh();
-        }                                               // Событие нажатие кнопки To Connect, позволяющей связаться с персонажем путем отправки 
-                                                                                                               //   письма на указанную в карточке электронную почту.
+        }                                                                                                      
     }
 }

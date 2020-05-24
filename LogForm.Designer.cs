@@ -98,7 +98,7 @@
             this.Controls.Add(this.label1);
             this.Name = "LogForm";
             this.Text = "NAUKA_CMS";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.LogForm_FormClosing);
+            
      
             this.ResumeLayout(false);
             this.PerformLayout();

@@ -5,7 +5,9 @@ using System.Windows.Forms;
 
 namespace NAUKA_CMS
 {
-    public partial class MessageMail : Form                                             //Окно написания сообщения для отправки письма персонажу
+
+    //Окно написания сообщения для отправки письма персонажу
+    public partial class MessageMail : Form                                             
     {
         public MessageMail()
         {
@@ -16,15 +18,18 @@ namespace NAUKA_CMS
         {
             InitializeComponent();
             Mail_T.Text = email;
-        }                                             // Конструктор передающий электронный адрес, указанный в карточке
+        }                                             
 
-        private void button1_Click(object sender, EventArgs e)                          // Отправка сообщения после нажатия кнопки Send
+        // Отправка сообщения после нажатия кнопки Send
+        private void button1_Click(object sender, EventArgs e)                         
         {
             Send(Mail_T.Text, Message_T.Text);
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
 
+
+        // Функция полностью описана в коде формы ForgotAPass.cs
         void Send(string Email, string Message)
         {
             var fromAddress = new MailAddress("NaukaCMS@yandex.ru", "NAUKA_CMS");
@@ -51,6 +56,6 @@ namespace NAUKA_CMS
                 smtp.Send(message);
             }
 
-        }                                      // Функция полностью описана в коде формы ForgotAPass.cs
+        }                                     
     }
 }

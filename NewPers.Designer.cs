@@ -226,7 +226,6 @@
             this.Controls.Add(this.FName_T);
             this.Name = "NewPers";
             this.Text = "New Person";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.NewPers_FormClosing);
             this.Load += new System.EventHandler(this.NewPers_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

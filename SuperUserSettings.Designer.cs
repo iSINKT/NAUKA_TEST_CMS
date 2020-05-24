@@ -118,8 +118,6 @@
             this.Controls.Add(this.Log_T);
             this.Name = "SuperUserSettings";
             this.Text = "SuperUserSettings";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SuperUserSettings_FormClosing);
-            this.Load += new System.EventHandler(this.SuperUserSettings_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

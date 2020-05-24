@@ -72,7 +72,6 @@
             this.Name = "ForgotAPass";
             this.Text = "Forgot a Pass";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ForgotAPass_FormClosing);
-            this.Load += new System.EventHandler(this.ForgotAPass_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
