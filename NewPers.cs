@@ -21,22 +21,27 @@ namespace NAUKA_CMS
         {
             try
             {
-                using (SqlCommand command = new SqlCommand("INSERT INTO [" + Dep_CB.Text + "] (FirstName, LastName, Patronymic, DateofBirth, Addres, Email, AboutMyself)" +            //Формарование запроса на вставку записи в таблицу
-                                                    "VALUES (@FirstName, @LastName, @Patronymic, @DateofBirth, @Addres, @Email, @AboutMyself)", sqlConnection))
+                string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
+                using (sqlConnection = new SqlConnection(strConnect))
                 {
+                    await sqlConnection.OpenAsync();
+                    using (SqlCommand command = new SqlCommand("INSERT INTO [" + Dep_CB.Text + "] (FirstName, LastName, Patronymic, DateofBirth, Addres, Email, AboutMyself)" +            //Формарование запроса на вставку записи в таблицу
+                                                    "VALUES (@FirstName, @LastName, @Patronymic, @DateofBirth, @Addres, @Email, @AboutMyself)", sqlConnection))
+                    {
 
-                    command.Parameters.AddWithValue("FirstName", FName_T.Text);
-                    command.Parameters.AddWithValue("LastName", LName_T.Text);
-                    command.Parameters.AddWithValue("Patronymic", Patr_T.Text);
-                    command.Parameters.AddWithValue("DateofBirth", Date.Value);
-                    command.Parameters.AddWithValue("Addres", Addr_T.Text);
-                    command.Parameters.AddWithValue("Email", Email_T.Text);
-                    command.Parameters.AddWithValue("AboutMyself", AbM_T.Text);
+                        command.Parameters.AddWithValue("FirstName", FName_T.Text);
+                        command.Parameters.AddWithValue("LastName", LName_T.Text);
+                        command.Parameters.AddWithValue("Patronymic", Patr_T.Text);
+                        command.Parameters.AddWithValue("DateofBirth", Date.Value);
+                        command.Parameters.AddWithValue("Addres", Addr_T.Text);
+                        command.Parameters.AddWithValue("Email", Email_T.Text);
+                        command.Parameters.AddWithValue("AboutMyself", AbM_T.Text);
 
-                    await command.ExecuteNonQueryAsync();
+                        await command.ExecuteNonQueryAsync();
 
 
-                    this.DialogResult = DialogResult.OK;
+                        this.DialogResult = DialogResult.OK;
+                    }
                 }
             }
             catch (Exception ex)

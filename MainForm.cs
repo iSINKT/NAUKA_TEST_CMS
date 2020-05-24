@@ -102,45 +102,44 @@ namespace NAUKA_CMS
         {
             if (ListOfPerson.SelectedIndex != -1)
             {
-                string Id = "";
-                try
-                {
-                    for (int i = 0; ListOfPerson.Text[i] != '\t'; i++)                                          //Выуживание айди для наполнения карточки информацией из БД
+                string Id = "";               
+                for (int i = 0; ListOfPerson.Text[i] != '\t'; i++)                                          //Нахождение айди для наполнения карточки информацией из БД
                         Id += ListOfPerson.Text[i];
-                }
-                catch
-                {
-
-                }
-                CardOfPerson.Visible = true;
-                SqlDataReader sqlReader = null;
-                SqlCommand command = new SqlCommand("SELECT * FROM [" + TDep_CB.Text + "] WHERE  Id=" + Id, sqlConnection);
-
                 try
                 {
-                    sqlReader = await command.ExecuteReaderAsync();
-                    while (await sqlReader.ReadAsync())
+
+                    string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
+                    using (sqlConnection = new SqlConnection(strConnect))
                     {
-                        FName_T.Text = Convert.ToString(sqlReader["FirstName"]);
-                        LName_T.Text = Convert.ToString(sqlReader["LastName"]);
-                        Patr_T.Text = Convert.ToString(sqlReader["Patronymic"]);
-                        Data.Value = Convert.ToDateTime(sqlReader["DateofBirth"]);
-                        Addr_T.Text = Convert.ToString(sqlReader["Addres"]);
-                        Dep_CB.Text = TDep_CB.Text;
-                        Email_T.Text = Convert.ToString(sqlReader["Email"]);
-                        AbM_T.Text = Convert.ToString(sqlReader["AboutMyself"]);
+                        await sqlConnection.OpenAsync();
+                        CardOfPerson.Visible = true;
+                        SqlDataReader sqlReader = null;
+                        using (SqlCommand command = new SqlCommand("SELECT * FROM [" + TDep_CB.Text + "] WHERE  Id=" + Id, sqlConnection))
+                        {
+
+                            using (sqlReader = await command.ExecuteReaderAsync())
+                            {
+                                while (await sqlReader.ReadAsync())
+                                {
+                                    FName_T.Text = Convert.ToString(sqlReader["FirstName"]);
+                                    LName_T.Text = Convert.ToString(sqlReader["LastName"]);
+                                    Patr_T.Text = Convert.ToString(sqlReader["Patronymic"]);
+                                    Data.Value = Convert.ToDateTime(sqlReader["DateofBirth"]);
+                                    Addr_T.Text = Convert.ToString(sqlReader["Addres"]);
+                                    Dep_CB.Text = TDep_CB.Text;
+                                    Email_T.Text = Convert.ToString(sqlReader["Email"]);
+                                    AbM_T.Text = Convert.ToString(sqlReader["AboutMyself"]);
+                                }
+
+                            }
+                        }
                     }
-
-
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message.ToString(), ex.Source.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                finally
-                {
-                    if (sqlReader != null) sqlReader.Close();
-                }
+               
             }
         }
 
@@ -156,22 +155,31 @@ namespace NAUKA_CMS
             for (int i = 0; ListOfPerson.Text[i] != '\t'; i++)
                 Id += ListOfPerson.Text[i];
 
-            SqlCommand command = new SqlCommand("INSERT INTO [" + Dep_CB.Text + "] (FirstName, LastName, Patronymic, DateofBirth, Addres, Email, AboutMyself)" +
-                                                "VALUES (@FirstName, @LastName, @Patronymic, @DateofBirth, @Addres, @Email, @AboutMyself)", sqlConnection);
+            string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
+            using (sqlConnection = new SqlConnection(strConnect))
+            {
+                await sqlConnection.OpenAsync();
+                using (SqlCommand command = new SqlCommand("INSERT INTO [" + Dep_CB.Text + "] (FirstName, LastName, Patronymic, DateofBirth, Addres, Email, AboutMyself)" +
+                                                "VALUES (@FirstName, @LastName, @Patronymic, @DateofBirth, @Addres, @Email, @AboutMyself)", sqlConnection))
+                {
+                    command.Parameters.AddWithValue("FirstName", FName_T.Text);
+                    command.Parameters.AddWithValue("LastName", LName_T.Text);
+                    command.Parameters.AddWithValue("Patronymic", Patr_T.Text);
+                    command.Parameters.AddWithValue("DateofBirth", Data.Value);
+                    command.Parameters.AddWithValue("Addres", Addr_T.Text);
+                    command.Parameters.AddWithValue("Email", Email_T.Text);
+                    command.Parameters.AddWithValue("AboutMyself", AbM_T.Text);
 
-            command.Parameters.AddWithValue("FirstName", FName_T.Text);
-            command.Parameters.AddWithValue("LastName", LName_T.Text);
-            command.Parameters.AddWithValue("Patronymic", Patr_T.Text);
-            command.Parameters.AddWithValue("DateofBirth", Data.Value);
-            command.Parameters.AddWithValue("Addres", Addr_T.Text);
-            command.Parameters.AddWithValue("Email", Email_T.Text);
-            command.Parameters.AddWithValue("AboutMyself", AbM_T.Text);
 
-            await command.ExecuteNonQueryAsync();
+                    await command.ExecuteNonQueryAsync();
+                }
 
-            command = new SqlCommand("DELETE FROM [" + TDep_CB.Text + "] WHERE  Id=" + Id, sqlConnection);
-            await command.ExecuteNonQueryAsync();
 
+                using (SqlCommand command = new SqlCommand("DELETE FROM [" + TDep_CB.Text + "] WHERE  Id=" + Id, sqlConnection))
+                {
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
             Panel.Enabled = false;
             Save_Bt.Enabled = false;
             Edit_B.Enabled = true;
@@ -205,9 +213,15 @@ namespace NAUKA_CMS
             string Id = "";
             for (int i = 0; ListOfPerson.Text[i] != '\t'; i++)
                 Id += ListOfPerson.Text[i];
-            using (SqlCommand command = new SqlCommand("DELETE FROM [" + TDep_CB.Text + "] WHERE  Id=" + Id, sqlConnection))
+
+            string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
+            using (sqlConnection = new SqlConnection(strConnect))
             {
-                await command.ExecuteNonQueryAsync();
+                await sqlConnection.OpenAsync();
+                using (SqlCommand command = new SqlCommand("DELETE FROM [" + TDep_CB.Text + "] WHERE  Id=" + Id, sqlConnection))
+                {
+                    await command.ExecuteNonQueryAsync();
+                }
             }
             Refresh( );
             
@@ -217,18 +231,23 @@ namespace NAUKA_CMS
         // Из-за частого использования была вынесена функция Обновления списка персонажей
         async void Refresh() 
         {
+            ListOfPerson.Items.Clear();
             try
             {
-                ListOfPerson.Items.Clear();
-                SqlDataReader sqlReader = null;
-                using (SqlCommand command = new SqlCommand("SELECT * FROM [" + TDep_CB.Text.ToString() + "]", sqlConnection))
+                string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
+                using (sqlConnection = new SqlConnection(strConnect))
                 {
-
-                    using (sqlReader = await command.ExecuteReaderAsync())
+                    await sqlConnection.OpenAsync();
+                    SqlDataReader sqlReader = null;
+                    using (SqlCommand command = new SqlCommand("SELECT * FROM [" + TDep_CB.Text.ToString() + "]", sqlConnection))
                     {
-                        while (await sqlReader.ReadAsync())
+
+                        using (sqlReader = await command.ExecuteReaderAsync())
                         {
-                            ListOfPerson.Items.Add(Convert.ToString(sqlReader["id"]) + '\t' + Convert.ToString(sqlReader["FirstName"]) + ' ' + Convert.ToString(sqlReader["LastName"]) + ' ' + Convert.ToString(sqlReader["Patronymic"]));
+                            while (await sqlReader.ReadAsync())
+                            {
+                                ListOfPerson.Items.Add(Convert.ToString(sqlReader["id"]) + '\t' + Convert.ToString(sqlReader["FirstName"]) + ' ' + Convert.ToString(sqlReader["LastName"]) + ' ' + Convert.ToString(sqlReader["Patronymic"]));
+                            }
                         }
                     }
                 }
