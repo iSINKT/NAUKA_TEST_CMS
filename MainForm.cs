@@ -36,7 +36,7 @@ namespace NAUKA_CMS
             }
             else
             {
-                string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Anton\source\repos\NAUKA_CMS\Database.mdf;Integrated Security=True";
+                string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
                 sqlConnection = new SqlConnection(strConnect);
                 await sqlConnection.OpenAsync();                                                                // Указание расположения БД, установка соединения
                 SqlDataReader sqlReader = null;

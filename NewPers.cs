@@ -41,7 +41,7 @@ namespace NAUKA_CMS
 
         private async void NewPers_Load(object sender, EventArgs e)
         {
-            string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Anton\source\repos\NAUKA_CMS\Database.mdf;Integrated Security=True";
+            string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
             sqlConnection = new SqlConnection(strConnect);
             await sqlConnection.OpenAsync();
             SqlDataReader sqlReader = null;
