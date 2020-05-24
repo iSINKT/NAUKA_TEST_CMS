@@ -30,7 +30,7 @@ namespace NAUKA_CMS
         private async void MainForm_Load(object sender, EventArgs e)
         {
             
-            if (new LogForm().ShowDialog() != DialogResult.OK)                                                  //Проверка на корректное логирование
+            if (new LogForm().ShowDialog() != DialogResult.OK)                                                  //Проверка на корректную авторизацию
             {
                 this.Close();
             }
@@ -172,7 +172,7 @@ namespace NAUKA_CMS
                 Dep_CB.SelectedIndex = 0;
                 this.Show();
             }
-        }                             // Событие выхода из учетной записи и вызов окна логирования
+        }                             // Событие выхода из учетной записи и вызов окна авторизации
 
         private async void Del_B_Click(object sender, EventArgs e)
         {
