@@ -1,6 +1,5 @@
-﻿using System;
-using System.Data;
-using System.Data.SqlClient;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Windows.Forms;
 
 namespace NAUKA_CMS
@@ -9,7 +8,12 @@ namespace NAUKA_CMS
     //Форма для регистрации нового персонажа.
     public partial class NewPers : Form                                                  
     {
-        SqlConnection sqlConnection;
+        const string Password = "Qasw12qasw12";
+        const string UserID = "isinkt123_nauka";
+        const string host = "isinkt123.beget.tech";
+        const string database = "isinkt123_nauka";
+        string connectionString = $"Server={host};Database={database};port=3306;User Id={UserID};password={Password}";
+        MySqlConnection MysqlConnection;
         public NewPers()
         {
             InitializeComponent();
@@ -21,14 +25,12 @@ namespace NAUKA_CMS
         {
             try
             {
-                string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
-                using (sqlConnection = new SqlConnection(strConnect))
+                using (MysqlConnection = new MySqlConnection(connectionString))
                 {
-                    await sqlConnection.OpenAsync();
-                    using (SqlCommand command = new SqlCommand("INSERT INTO [" + Dep_CB.Text + "] (FirstName, LastName, Patronymic, DateofBirth, Addres, Email, AboutMyself)" +            //Формарование запроса на вставку записи в таблицу
-                                                    "VALUES (@FirstName, @LastName, @Patronymic, @DateofBirth, @Addres, @Email, @AboutMyself)", sqlConnection))
+                    await MysqlConnection.OpenAsync();
+                    using (var command = new MySqlCommand($"INSERT INTO {Dep_CB.Text} (FirstName, LastName, Patronymic, DateofBirth, Addres, Email, AboutMyself)" +            //Формарование запроса на вставку записи в таблицу
+                                                    "VALUES (@FirstName, @LastName, @Patronymic, @DateofBirth, @Addres, @Email, @AboutMyself)", MysqlConnection))
                     {
-
                         command.Parameters.AddWithValue("FirstName", FName_T.Text);
                         command.Parameters.AddWithValue("LastName", LName_T.Text);
                         command.Parameters.AddWithValue("Patronymic", Patr_T.Text);
@@ -38,7 +40,6 @@ namespace NAUKA_CMS
                         command.Parameters.AddWithValue("AboutMyself", AbM_T.Text);
 
                         await command.ExecuteNonQueryAsync();
-
 
                         this.DialogResult = DialogResult.OK;
                     }
@@ -57,14 +58,12 @@ namespace NAUKA_CMS
         {
             try
             {
-            string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
-                using (sqlConnection = new SqlConnection(strConnect))
+                using (MysqlConnection = new MySqlConnection(connectionString))
                 {
-                    await sqlConnection.OpenAsync();
-                    SqlDataReader sqlReader = null;
-                    using (SqlCommand command = new SqlCommand("SELECT * FROM [TheDep]", sqlConnection))
+                    await MysqlConnection.OpenAsync();
+                    using (var command = new MySqlCommand("SELECT * FROM TheDep", MysqlConnection))
                     {
-                        using (sqlReader = await command.ExecuteReaderAsync())
+                        using (var sqlReader = await command.ExecuteReaderAsync())
                         {
                             while (await sqlReader.ReadAsync())
                             {

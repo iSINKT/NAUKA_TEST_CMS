@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Windows.Forms;
 using System.Data;
-using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
 
 namespace NAUKA_CMS
 {
@@ -11,7 +11,13 @@ namespace NAUKA_CMS
     // Форма позволяющая отправить на электронный ящик письмо с "новыми" логином и паролем
     public partial class ForgotAPass : Form                                                     
     {
-        SqlConnection sqlConnection;
+
+        const string Password = "Qasw12qasw12";
+        const string UserID = "isinkt123_nauka";
+        const string host = "isinkt123.beget.tech";
+        const string database = "isinkt123_nauka";
+        string connectionString = $"Server={host};Database={database};port=3306;User Id={UserID};password={Password}";
+        MySqlConnection MysqlConnection;
         public ForgotAPass()
         {
             InitializeComponent();
@@ -21,11 +27,10 @@ namespace NAUKA_CMS
 
         private async void Confirm_B_Click(object sender, EventArgs e)
         {
-            string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
-            using (sqlConnection = new SqlConnection(strConnect))
+            using (MysqlConnection = new MySqlConnection(connectionString))
             {
 
-                await sqlConnection.OpenAsync();
+                await MysqlConnection.OpenAsync();
 
 
                 // "Новые" логин и пароль. Они придут Вам в электронном письме.
@@ -43,7 +48,7 @@ namespace NAUKA_CMS
                 }
                 // После отправки необходимо изменить токен в базе данных,  
                 //  иначе письмо придет, а входные данные для входа останутся прежними.                
-                using (SqlCommand command = new SqlCommand("UPDATE [SuperUser] SET [tocken]=@tocken WHERE Id=1", sqlConnection))          
+                using (var command = new MySqlCommand("UPDATE SuperUser SET tocken=@tocken WHERE Id=1", MysqlConnection))          
                 {                                                                                                                         
                     command.Parameters.AddWithValue("tocken", md5.GetMD5(Login + Pass));
                     await command.ExecuteNonQueryAsync();

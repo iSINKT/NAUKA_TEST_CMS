@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
 using System.Windows.Forms;
 
 namespace NAUKA_CMS
@@ -15,7 +16,12 @@ namespace NAUKA_CMS
     public partial class LogForm : Form
     
     {
-        SqlConnection sqlConnection;
+        const string Password = "Qasw12qasw12";
+        const string UserID = "isinkt123_nauka";
+        const string host = "isinkt123.beget.tech";
+        const string database = "isinkt123_nauka";
+        string connectionString = $"Server={host};Database={database};port=3306;User Id={UserID};password={Password}";
+        MySqlConnection MysqlConnection;
         string Hash;
         public LogForm()
         {
@@ -36,20 +42,18 @@ namespace NAUKA_CMS
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             try
             {
-                string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
-                using (sqlConnection = new SqlConnection(strConnect))
-                {
-                    await sqlConnection.OpenAsync();
-                    SqlDataReader sqlReader = null;
-                    using (SqlCommand command = new SqlCommand("SELECT * FROM [SuperUser]", sqlConnection))
+                using (MysqlConnection = new MySqlConnection(connectionString))
+                {                   
+                    MysqlConnection.Open();
+                    using (var command = new MySqlCommand("SELECT * FROM SuperUser", MysqlConnection))
                     {
-                        using (sqlReader = await command.ExecuteReaderAsync())
-                        {                                                                                          
-                            while (await sqlReader.ReadAsync())                                                    
-                            {                                                                                      
-                                Hash = Convert.ToString(sqlReader["tocken"]);                                      
-                            }                                                                                      
-                        }                                                                                          
+                        using (var  sqlReader = await command.ExecuteReaderAsync())
+                        {
+                            while (await sqlReader.ReadAsync())
+                            {
+                                Hash = Convert.ToString(sqlReader["tocken"]);
+                            }
+                        }
                     }                                                                                              
                 }                                   
             }
@@ -57,8 +61,6 @@ namespace NAUKA_CMS
             {
                 MessageBox.Show(ex.Message.ToString(), ex.Source.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             // Сумма Логина и Пароля преобразуется в хеш, результаты сравниваются.

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Data;
-using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
 using System.Windows.Forms;
 
 namespace NAUKA_CMS
@@ -8,8 +8,13 @@ namespace NAUKA_CMS
     // Окно позволяющее изменить данные для входа в учетную запись
     // Админ-пользователь один.
     public partial class SuperUserSettings : Form                                                           
-    {                                                                                                       
-        SqlConnection sqlConnection;
+    {
+        const string Password = "Qasw12qasw12";
+        const string UserID = "isinkt123_nauka";
+        const string host = "isinkt123.beget.tech";
+        const string database = "isinkt123_nauka";
+        string connectionString = $"Server={host};Database={database};port=3306;User Id={UserID};password={Password}";
+        MySqlConnection MysqlConnection;
         public SuperUserSettings()
         {
             InitializeComponent();
@@ -31,17 +36,14 @@ namespace NAUKA_CMS
         // SuperUser.
         private async void Ok_B_Click(object sender, EventArgs e)
         {
-            string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
-
-            using (sqlConnection = new SqlConnection(strConnect))
+            using (MysqlConnection = new MySqlConnection(connectionString))
             {
-                await sqlConnection.OpenAsync();
-                using (SqlCommand command = new SqlCommand("UPDATE [SuperUser] SET [tocken]=@tocken WHERE Id=1", sqlConnection))
+                await MysqlConnection.OpenAsync();
+                using (var command = new MySqlCommand("UPDATE SuperUser SET tocken=@tocken WHERE Id=1", MysqlConnection))
                 {
                     command.Parameters.AddWithValue("tocken", md5.GetMD5(Log_T.Text + Pass_T.Text));
                     await command.ExecuteNonQueryAsync();
                 }
-                if (sqlConnection != null && sqlConnection.State != ConnectionState.Closed) { sqlConnection.Close(); }
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }

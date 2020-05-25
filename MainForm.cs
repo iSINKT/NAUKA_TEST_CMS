@@ -1,15 +1,22 @@
 ﻿using System;
 using System.Data;
-using System.Data.SqlClient;
 using System.Windows.Forms;
+using MySql.Data.MySqlClient;
+
 
 namespace NAUKA_CMS
 {
 
+   
     // Главная форма системы управления контентом
     public partial class MainForm : Form                                                                     
     {
-        SqlConnection sqlConnection;
+        const string Password = "Qasw12qasw12";
+        const string UserID = "isinkt123_nauka";
+        const string host = "isinkt123.beget.tech";
+        const string database = "isinkt123_nauka";
+        string connectionString = $"Server={host};Database={database};port=3306;User Id={UserID};password={Password}";
+        MySqlConnection MysqlConnection;
         public MainForm()
         {
             InitializeComponent();
@@ -46,16 +53,15 @@ namespace NAUKA_CMS
             {
                 try
                 {
-                    string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
-                    using (sqlConnection = new SqlConnection(strConnect))
+                    using (MysqlConnection = new MySqlConnection(connectionString))
                     {
-                        await sqlConnection.OpenAsync();                                                                // Указание расположения БД, установка соединения
-                        SqlDataReader sqlReader = null;
-                        using (SqlCommand command = new SqlCommand("SELECT * FROM [TheDep]", sqlConnection))
+                        await MysqlConnection.OpenAsync();                                                                // Указание расположения БД, установка соединения
+                        
+                        using (var command = new MySqlCommand("SELECT * FROM TheDep", MysqlConnection))
                         {                   //  Формирование запроса к БД. "TheDep = The Departament - отдел, 
                                             //  но вскоре Отдел начал исполнять роль Фракции.
 
-                            using (sqlReader = await command.ExecuteReaderAsync())
+                            using (var sqlReader = await command.ExecuteReaderAsync())
                             {
                                 while (await sqlReader.ReadAsync())
                                 {                                                                                            // Обработка результата запроса - Наполнение КомбоБоксов фракциями из таблицы TheDep
@@ -102,22 +108,21 @@ namespace NAUKA_CMS
         {
             if (ListOfPerson.SelectedIndex != -1)
             {
+                //Нахождение айди для наполнения карточки информацией из БД
                 string Id = "";               
-                for (int i = 0; ListOfPerson.Text[i] != '\t'; i++)                                          //Нахождение айди для наполнения карточки информацией из БД
+                for (int i = 0; ListOfPerson.Text[i] != '\t'; i++)                                         
                         Id += ListOfPerson.Text[i];
                 try
                 {
 
-                    string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
-                    using (sqlConnection = new SqlConnection(strConnect))
+                    using (MysqlConnection = new MySqlConnection(connectionString))
                     {
-                        await sqlConnection.OpenAsync();
+                        await MysqlConnection.OpenAsync();
                         CardOfPerson.Visible = true;
-                        SqlDataReader sqlReader = null;
-                        using (SqlCommand command = new SqlCommand("SELECT * FROM [" + TDep_CB.Text + "] WHERE  Id=" + Id, sqlConnection))
+                        using (var command = new MySqlCommand($"SELECT * FROM {TDep_CB.Text} WHERE  Id={Id}", MysqlConnection))
                         {
 
-                            using (sqlReader = await command.ExecuteReaderAsync())
+                            using (var sqlReader = await command.ExecuteReaderAsync())
                             {
                                 while (await sqlReader.ReadAsync())
                                 {
@@ -155,12 +160,11 @@ namespace NAUKA_CMS
             for (int i = 0; ListOfPerson.Text[i] != '\t'; i++)
                 Id += ListOfPerson.Text[i];
 
-            string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
-            using (sqlConnection = new SqlConnection(strConnect))
+            using (MysqlConnection = new MySqlConnection(connectionString))
             {
-                await sqlConnection.OpenAsync();
-                using (SqlCommand command = new SqlCommand("INSERT INTO [" + Dep_CB.Text + "] (FirstName, LastName, Patronymic, DateofBirth, Addres, Email, AboutMyself)" +
-                                                "VALUES (@FirstName, @LastName, @Patronymic, @DateofBirth, @Addres, @Email, @AboutMyself)", sqlConnection))
+                await MysqlConnection.OpenAsync();
+                using (var command = new MySqlCommand($"INSERT INTO {Dep_CB.Text} (FirstName, LastName, Patronymic, DateofBirth, Addres, Email, AboutMyself)" +
+                                                "VALUES (@FirstName, @LastName, @Patronymic, @DateofBirth, @Addres, @Email, @AboutMyself)", MysqlConnection))
                 {
                     command.Parameters.AddWithValue("FirstName", FName_T.Text);
                     command.Parameters.AddWithValue("LastName", LName_T.Text);
@@ -175,7 +179,7 @@ namespace NAUKA_CMS
                 }
 
 
-                using (SqlCommand command = new SqlCommand("DELETE FROM [" + TDep_CB.Text + "] WHERE  Id=" + Id, sqlConnection))
+                using (var command = new MySqlCommand($"DELETE FROM {TDep_CB.Text} WHERE  Id={Id}", MysqlConnection))
                 {
                     await command.ExecuteNonQueryAsync();
                 }
@@ -201,7 +205,7 @@ namespace NAUKA_CMS
             {
                 CardOfPerson.Visible = false;
                 ListOfPerson.Items.Clear();
-                Dep_CB.SelectedIndex = 0;
+                Dep_CB.SelectedIndex = -1;
                 this.Show();
             }
         }
@@ -214,11 +218,10 @@ namespace NAUKA_CMS
             for (int i = 0; ListOfPerson.Text[i] != '\t'; i++)
                 Id += ListOfPerson.Text[i];
 
-            string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
-            using (sqlConnection = new SqlConnection(strConnect))
+            using (MysqlConnection = new MySqlConnection(connectionString))
             {
-                await sqlConnection.OpenAsync();
-                using (SqlCommand command = new SqlCommand("DELETE FROM [" + TDep_CB.Text + "] WHERE  Id=" + Id, sqlConnection))
+                await MysqlConnection.OpenAsync();
+                using (var command = new MySqlCommand( $"DELETE FROM {TDep_CB.Text} WHERE  Id={Id}", MysqlConnection))
                 {
                     await command.ExecuteNonQueryAsync();
                 }
@@ -234,15 +237,13 @@ namespace NAUKA_CMS
             ListOfPerson.Items.Clear();
             try
             {
-                string strConnect = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + System.IO.Directory.GetCurrentDirectory() + @"\Database.mdf;Integrated Security=True";
-                using (sqlConnection = new SqlConnection(strConnect))
+                using (MysqlConnection = new MySqlConnection(connectionString))
                 {
-                    await sqlConnection.OpenAsync();
-                    SqlDataReader sqlReader = null;
-                    using (SqlCommand command = new SqlCommand("SELECT * FROM [" + TDep_CB.Text.ToString() + "]", sqlConnection))
+                    await MysqlConnection.OpenAsync();
+                    using (var command = new MySqlCommand($"SELECT * FROM { TDep_CB.Text.ToString() }", MysqlConnection))
                     {
 
-                        using (sqlReader = await command.ExecuteReaderAsync())
+                        using (var sqlReader = await command.ExecuteReaderAsync())
                         {
                             while (await sqlReader.ReadAsync())
                             {
