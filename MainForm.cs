@@ -109,9 +109,7 @@ namespace NAUKA_CMS
             if (ListOfPerson.SelectedIndex != -1)
             {
                 //Нахождение айди для наполнения карточки информацией из БД
-                string Id = "";               
-                for (int i = 0; ListOfPerson.Text[i] != '\t'; i++)                                         
-                        Id += ListOfPerson.Text[i];
+                string Id = ListOfPerson.Text.Split('\t')[0];
                 try
                 {
 
@@ -156,9 +154,7 @@ namespace NAUKA_CMS
         //    редактировании какой-либо другой информации. Это проблема логики, т.к персонаж-то один и тот же.
         private async void Save_Bt_Click(object sender, EventArgs e)
         {
-            string Id = "";
-            for (int i = 0; ListOfPerson.Text[i] != '\t'; i++)
-                Id += ListOfPerson.Text[i];
+            string Id = ListOfPerson.Text.Split('\t')[0];
 
             using (MysqlConnection = new MySqlConnection(connectionString))
             {
@@ -214,9 +210,7 @@ namespace NAUKA_CMS
         // Событие кнопки DELETE
         private async void Del_B_Click(object sender, EventArgs e)
         {
-            string Id = "";
-            for (int i = 0; ListOfPerson.Text[i] != '\t'; i++)
-                Id += ListOfPerson.Text[i];
+            string Id = ListOfPerson.Text.Split('\t')[0];
 
             using (MysqlConnection = new MySqlConnection(connectionString))
             {
